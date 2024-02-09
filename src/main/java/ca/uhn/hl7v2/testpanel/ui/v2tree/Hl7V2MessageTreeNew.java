@@ -67,7 +67,6 @@ import ca.uhn.hl7v2.validation.impl.DefaultValidation;
 import ca.uhn.hl7v2.validation.impl.ValidationContextImpl;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -103,6 +102,7 @@ import org.netbeans.swing.outline.Outline;
 import org.netbeans.swing.outline.OutlineModel;
 import org.netbeans.swing.outline.RenderDataProvider;
 import org.netbeans.swing.outline.RowModel;
+import org.openide.util.Exceptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,11 +113,11 @@ import org.slf4j.LoggerFactory;
  *
  * @author Bryan Tripp (bryan_tripp@sourceforge.net)
  */
-public class Hl7V2MessageTree extends Outline implements IDestroyable
+public class Hl7V2MessageTreeNew extends Outline implements IDestroyable
 {
   private static final DefaultValidation ourDefaultValidation = new DefaultValidation();
 
-  private static final Logger ourLog = LoggerFactory.getLogger(Hl7V2MessageTree.class);
+  private static final Logger ourLog = LoggerFactory.getLogger(Hl7V2MessageTreeNew.class);
   private static final String TABLE_NAMESPACE_HL7 = "HL7";
   private static final String TBL = " ";
   private Controller myController;
@@ -131,25 +131,16 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
   private DefaultValidator myRuntimeProfileValidator;
   private boolean mySelectionHandlingDisabled;
   private boolean myShouldOpenDefaultPaths = true;
-
   private boolean myShowRep0 = true;
 
   private TreeRowModel myTableModel;
-
   private TreeNodeRoot myTop;
-
   private DefaultTreeModel myTreeModel;
-
   private ShowEnum myUnitTestShowMode;
-
-  private UpdaterThread myUpdaterThread;
-
   private PropertyChangeListener myValidationContextListener;
 
-  private IWorkingListener myWorkingListener;
-
   /** Creates new TreePanel */
-  public Hl7V2MessageTree(Controller theController)
+  public Hl7V2MessageTreeNew(Controller theController)
   {
     addKeyListener(new KeyAdapter()
     {
@@ -201,7 +192,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
       {
         if(myController.isMessageEditorInFollowMode())
         {
-          if(Hl7V2MessageTree.this.hasFocus() == false)
+          if(Hl7V2MessageTreeNew.this.hasFocus() == false)
           {
             synchronizeTreeWithHighlitedPath();
           }
@@ -213,7 +204,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
     {
       public void propertyChange(PropertyChangeEvent theEvt)
       {
-        myUpdaterThread.scheduleUpdate();
+        updateTree();
       }
     };
 
@@ -221,7 +212,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
     {
       public void propertyChange(PropertyChangeEvent theEvt)
       {
-        myUpdaterThread.scheduleUpdate();
+        updateTree();
       }
     };
 
@@ -229,14 +220,11 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
     {
       public void propertyChange(PropertyChangeEvent theEvt)
       {
-        myUpdaterThread.scheduleUpdate();
+        updateTree();
       }
     };
 
     getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-    myUpdaterThread = new UpdaterThread();
-    myUpdaterThread.start();
   }
 
   private int addChidrenExtra(String theParentName, Type thePrimitive, TreeNodeBase treeParent, Segment theSegment, List<Integer> theComponentPath, String theTerserPath, int cpIndex, int index)
@@ -280,7 +268,6 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
       catch(InterruptedException e)
       {
         ourLog.info("Interrupted during an update loop, going to schedule another pass");
-        myUpdaterThread.scheduleUpdate();
       }
       catch(InvocationTargetException e)
       {
@@ -288,57 +275,38 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
       }
 
       myTop.validate();
-
-      EventQueue.invokeLater(new Runnable()
-      {
-        public void run()
-        {
-          myTreeModel.nodeStructureChanged(myTop);
-        }
-      });
-
+      myTreeModel.nodeStructureChanged(myTop);
     }
 
-    EventQueue.invokeLater(new Runnable()
+    try
     {
-      public void run()
+      mySelectionHandlingDisabled = true;
+      ourLog.debug("Open paths are: {}", openPaths);
+      if(openPaths.isEmpty() && myShouldOpenDefaultPaths)
       {
-        try
+        ourLog.info("Opening default paths");
+        final AbstractLayoutCache layout = ((OutlineModel) getModel()).getLayout();
+        for(int row = 0; row < layout.getRowCount(); row++)
         {
-          mySelectionHandlingDisabled = true;
-          ourLog.debug("Open paths are: {}", openPaths);
-          if(openPaths.isEmpty() && myShouldOpenDefaultPaths)
+          TreePath path = layout.getPathForRow(row);
+          Object component = path.getLastPathComponent();
+          if(component instanceof TreeNodeMessage || component instanceof TreeNodeUnknown || component instanceof TreeNodeGroup)
           {
-            ourLog.info("Opening default paths");
-            final AbstractLayoutCache layout = ((OutlineModel) getModel()).getLayout();
-            for(int row = 0; row < layout.getRowCount(); row++)
-            {
-              TreePath path = layout.getPathForRow(row);
-              Object component = path.getLastPathComponent();
-              if(component instanceof TreeNodeMessage || component instanceof TreeNodeUnknown || component instanceof TreeNodeGroup)
-              {
-                expandPath(path);
-              }
-            }
-            myShouldOpenDefaultPaths = false;
-          }
-          else
-          {
-            ourLog.info("Opening pre-existing paths: {} and selected path: {}", openPaths, selectedPath);
-            expandPaths(openPaths, selectedPath);
+            expandPath(path);
           }
         }
-        finally
-        {
-          mySelectionHandlingDisabled = false;
-        }
+        myShouldOpenDefaultPaths = false;
       }
-    });
-    // if (selectedRow != -1) {
-    // getSelectionModel().setSelectionInterval(selectedRow, selectedRow);
-    // handleNewSelectedIndex(selectedRow);
-    // }
-
+      else
+      {
+        ourLog.info("Opening pre-existing paths: {} and selected path: {}", openPaths, selectedPath);
+        expandPaths(openPaths, selectedPath);
+      }
+    }
+    finally
+    {
+      mySelectionHandlingDisabled = false;
+    }
   }
 
   /**
@@ -637,9 +605,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
   public void destroy()
   {
     removeMessageListeners();
-
     myTop.destroy();
-    myUpdaterThread.stopThread();
   }
 
   private void doSynchronizeTreeWithHighlitedPath()
@@ -927,7 +893,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
 
   public void scheduleNewValidationPass()
   {
-    myUpdaterThread.scheduleUpdate();
+    updateTree();
   }
 
   /**
@@ -953,7 +919,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
     if(myMessages != null && theValue != myMessages.getEditorShowMode())
     {
       myMessages.setEditorShowMode(theValue);
-      myUpdaterThread.scheduleUpdateNow();
+      updateTree();
     }
   }
 
@@ -982,17 +948,16 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
     setDefaultRenderer(NodeValidationFailure.class, new ValidationTreeCellRenderer());
 
     // Volumn index is off by one because of the tree
-    getColumnModel().getColumn(TreeRowModel.COL_VALUE + 1).setCellRenderer(new ValueCellRenderer(this));
+    getColumnModel().getColumn(TreeRowModel.COL_VALUE + 1).setCellRenderer(new ValueCellRendererNew(this));
 
     updateUI();
 
-    myUpdaterThread.scheduleUpdateNow();
-
     SwingUtilities.invokeLater(new Runnable()
     {
-
       public void run()
       {
+        updateTree();
+
         int width = getWidth() - 140;
 
         getColumnModel().getColumn(0).setPreferredWidth(width / 2);
@@ -1020,7 +985,6 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
         getColumnModel().getColumn(5).setPreferredWidth(width / 2);
       }
     });
-
   }
 
   void setMessageForUnitTest(Hl7V2MessageCollection theMessageModel)
@@ -1036,7 +1000,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
   public void setUnitTestShowMode(ShowEnum theUnitTestShowMode)
   {
     myUnitTestShowMode = theUnitTestShowMode;
-    myUpdaterThread.scheduleUpdateNow();
+    updateTree();
   }
 
   /**
@@ -1045,7 +1009,6 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
    */
   public void setWorkingListener(IWorkingListener theWorkingListener)
   {
-    myWorkingListener = theWorkingListener;
   }
 
   private void synchronizeTreeWithHighlitedPath()
@@ -1097,13 +1060,13 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
     return b.toString();
   }
 
-  private static TreeNodeBase insertOrReplaceWithExisting(final TreeNodeBase theTreeParent,
-     final int theIndex, final TreeNodeBase theNewNode)
+  private static TreeNodeBase insertOrReplaceWithExisting(final TreeNodeBase theTreeParent, final int theIndex, final TreeNodeBase theNewNode)
      throws InterruptedException, InvocationTargetException
   {
+
     if(theTreeParent.getChildCount() <= theIndex)
     {
-      EventQueue.invokeAndWait(() -> theTreeParent.insert(theNewNode, theIndex));
+      theTreeParent.insert(theNewNode, theIndex);
       return theNewNode;
     }
 
@@ -1118,14 +1081,14 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
         ((IDestroyable) node).destroy();
       }
 
-      EventQueue.invokeAndWait(() -> theTreeParent.remove(theIndex));
+      theTreeParent.remove(theIndex);
       if(theTreeParent.getChildCount() > (theIndex) && theTreeParent.getChildAt(theIndex).equals(theNewNode))
       {
         return (TreeNodeBase) theTreeParent.getChildAt(theIndex);
       }
     }
 
-    EventQueue.invokeAndWait(() -> theTreeParent.insert(theNewNode, theIndex));
+    theTreeParent.insert(theNewNode, theIndex);
     return theNewNode;
   }
 
@@ -1534,10 +1497,12 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
         }
 
         ShowEnum showMode = myMessages.getEditorShowMode();
-        if((next.getErrorDescription() == null && showMode == ShowEnum.ERROR) || (next.isHasContent() == false && showMode == ShowEnum.POPULATED) || (next.isSupported() == false && next.getErrorDescription() == null && showMode == ShowEnum.SUPPORTED))
+        if((next.getErrorDescription() == null && showMode == ShowEnum.ERROR)
+           || (next.isHasContent() == false && showMode == ShowEnum.POPULATED)
+           || (next.isSupported() == false && next.getErrorDescription() == null && showMode == ShowEnum.SUPPORTED))
         {
           final int index = i;
-          EventQueue.invokeAndWait(() -> remove(index));
+          remove(index);
           i--;
           continue;
         }
@@ -1803,7 +1768,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
         @Override
         public void propertyChange(PropertyChangeEvent theEvt)
         {
-          myUpdaterThread.scheduleUpdate();
+          updateTree();
         }
       };
 
@@ -2668,6 +2633,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
       }
     }
 
+    @Override
     public boolean isCellEditable(Object theValue, int theColumn)
     {
       if(theColumn == COL_VALUE)
@@ -2717,9 +2683,9 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
 
       theType.clear();
       myPipeParser.parse(theType, theNewValue, enc);
-
     }
 
+    @Override
     public void setValueFor(Object theObject, int theCol, Object theNewValue)
     {
       if(theCol != COL_VALUE)
@@ -2795,108 +2761,40 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
 			 * entire message which will invalidate the references to various
 			 * structures held by my tree
        */
-      myUpdaterThread.scheduleUpdateNow();
+      updateTree();
     }
   }
 
-  private class UpdaterThread extends Thread
+  protected void updateTree()
   {
-    private long myNextUpdate = 0;
-
-    @Override
-    public void run()
+    try
     {
-      while(myNextUpdate > -1)
+      ourLog.info("Running an update of the Message Tree");
+
+      addChildren();
+
+      int messages = myTop.countMessages();
+
+      final StringBuilder b = new StringBuilder();
+      b.append(messages > 0 ? messages : "No");
+      b.append(" message");
+      b.append(messages != 1 ? "s" : "");
+      if(myMessages.isValidating())
       {
-        try
-        {
-          long sleepTime = myNextUpdate > 0 ? myNextUpdate - System.currentTimeMillis() : 5000;
-          sleepTime = Math.max(0, sleepTime);
-          sleepTime = Math.min(5000, sleepTime);
-
-          try
-          {
-            Thread.sleep(sleepTime);
-          }
-          catch(InterruptedException e)
-          {
-            // ignore
-          }
-
-          if(myNextUpdate > 0 && myNextUpdate <= System.currentTimeMillis())
-          {
-            ourLog.info("Running an update of the Message Tree");
-
-            addChildren();
-
-            int messages = myTop.countMessages();
-
-            final StringBuilder b = new StringBuilder();
-            b.append(messages > 0 ? messages : "No");
-            b.append(" message");
-            b.append(messages != 1 ? "s" : "");
-            if(myMessages.isValidating())
-            {
-              b.append(", ");
-              int countExceptions = myTop.countExceptions();
-              b.append(countExceptions > 0 ? countExceptions : "No");
-              b.append(" problem");
-              b.append(countExceptions != 1 ? "s" : "");
-            }
-
-            if(myWorkingListener != null)
-            {
-              EventQueue.invokeAndWait(() -> myWorkingListener.finishedWorking(b.toString()));
-            }
-
-            myNextUpdate = 0;
-          }
-        }
-        catch(InterruptedException e)
-        {
-          // We can ignore these, they happen if the message is
-          // updated by
-          // the UI during a middle of an update loop
-        }
-        catch(Throwable e)
-        {
-          ourLog.info("Exception caught during update loop", e);
-          try
-          {
-            Thread.sleep(1000);
-          }
-          catch(InterruptedException e2)
-          {
-            // ignore
-          }
-        }
-      } // while
-
-      ourLog.info("Message Tree updater shutting down");
+        b.append(", ");
+        int countExceptions = myTop.countExceptions();
+        b.append(countExceptions > 0 ? countExceptions : "No");
+        b.append(" problem");
+        b.append(countExceptions != 1 ? "s" : "");
+      }
     }
-
-    public void scheduleUpdate()
+    catch(InterruptedException ex)
     {
-      myNextUpdate = System.currentTimeMillis() + 2000;
-      interrupt();
-
-      if(myWorkingListener != null)
-        EventQueue.invokeLater(() -> myWorkingListener.startedWorking());
+      Exceptions.printStackTrace(ex);
     }
-
-    public void scheduleUpdateNow()
+    catch(InvocationTargetException ex)
     {
-      myNextUpdate = System.currentTimeMillis();
-      interrupt();
-
-      if(myWorkingListener != null)
-        EventQueue.invokeLater(() -> myWorkingListener.startedWorking());
-    }
-
-    public void stopThread()
-    {
-      myNextUpdate = -1;
-      interrupt();
+      Exceptions.printStackTrace(ex);
     }
   }
 

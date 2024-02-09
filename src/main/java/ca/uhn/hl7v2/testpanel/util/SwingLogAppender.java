@@ -27,95 +27,101 @@ package ca.uhn.hl7v2.testpanel.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import javax.swing.SwingUtilities;
-
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 
-public class SwingLogAppender extends WriterAppender {
+public class SwingLogAppender extends WriterAppender
+{
+  private static Map<String, ArrayList<ILogListener>> listeners = new HashMap<>();
+  private final ConcurrentLinkedQueue<LoggingEvent> buf = new ConcurrentLinkedQueue<>();
 
-	private static Map<String, ArrayList<ILogListener>> listeners = new HashMap<String, ArrayList<ILogListener>>();
+  public SwingLogAppender()
+  {
+    super();
+    setLayout(new PatternLayout("%d{ABSOLUTE} %5p [%t] %c{1}:%L - %m%n"));
+  }
 
-	private ConcurrentLinkedQueue<LoggingEvent> buf;
+  @Override
+  public void append(LoggingEvent event)
+  {
+    buf.offer(event);
 
-	public SwingLogAppender() {
-		super();
-		this.buf = new ConcurrentLinkedQueue<LoggingEvent>();
-		setLayout(new PatternLayout(PatternLayout.TTCC_CONVERSION_PATTERN));
-		BasicConfigurator.configure(this);
-	}
+    // if (getLayout().ignoresThrowable()) {
+    // String[] exception = event.getThrowableStrRep();
+    // if (exception != null) {
+    // for (String line : exception) {
+    // buf.offer(line);
+    // }
+    // }
+    // }
+    display();
+  }
 
-	@Override
-	public void append(LoggingEvent event) {
-		buf.offer(event);
+  void display()
+  {
+    SwingUtilities.invokeLater(new Runnable()
+    {
+      public void run()
+      {
+        while(!buf.isEmpty())
+        {
+          LoggingEvent next = buf.poll();
+          String formattedLine = getLayout().format(next);
+          String ndc = next.getNDC();
+          fireEvent("", next, formattedLine);
+          if(ndc != null)
+          {
+            fireEvent(ndc, next, formattedLine);
+          }
+        }
+        buf.clear();
+      }
+    });
+  }
 
-		// if (getLayout().ignoresThrowable()) {
-		// String[] exception = event.getThrowableStrRep();
-		// if (exception != null) {
-		// for (String line : exception) {
-		// buf.offer(line);
-		// }
-		// }
-		// }
-		display();
-	}
+  private void fireEvent(String theNdc, LoggingEvent theEvent, String theFormatted)
+  {
+    List<ILogListener> list = listeners.get(theNdc);
+    if(list != null)
+    {
+      for(ILogListener next : list)
+      {
+        next.handle(theEvent, theFormatted);
+      }
+    }
+  }
 
-	void display() {
-		SwingUtilities.invokeLater(new Runnable() {
+  public static void addListener(ILogListener theListener)
+  {
+    addListener("", theListener);
+  }
 
-			public void run() {
-				while (!buf.isEmpty()) {
-					LoggingEvent next = buf.poll();
-					String formattedLine = getLayout().format(next);
-					String ndc = next.getNDC();
-					fireEvent("", next, formattedLine);
-					if (ndc != null) {
-						fireEvent(ndc, next, formattedLine);
-					}
-				}
-				buf.clear();
-			}
+  public static void addListener(String theNdc, ILogListener theListener)
+  {
+    if(!listeners.containsKey(theNdc))
+    {
+      listeners.put(theNdc, new ArrayList<ILogListener>());
+    }
+    listeners.get(theNdc).add(theListener);
+  }
 
-		});
-	}
+  public static void removeListener(ILogListener theListener)
+  {
+    removeListener("", theListener);
+  }
 
-	private void fireEvent(String theNdc, LoggingEvent theEvent, String theFormatted) {
-		ArrayList<ILogListener> list = listeners.get(theNdc);
-		if (list != null) {
-			for (ILogListener next : list) {
-				next.handle(theEvent, theFormatted);
-			}
-		}
-	}
+  public static void removeListener(String theNdc, ILogListener theListener)
+  {
+    listeners.get(theNdc).remove(theListener);
+  }
 
-	public static void addListener(ILogListener theListener) {
-		addListener("", theListener);
-	}
-
-	public static void addListener(String theNdc, ILogListener theListener) {
-		if (!listeners.containsKey(theNdc)) {
-			listeners.put(theNdc, new ArrayList<ILogListener>());
-		}
-		listeners.get(theNdc).add(theListener);
-	}
-
-	public static void removeListener(ILogListener theListener) {
-		removeListener("", theListener);
-	}
-
-	public static void removeListener(String theNdc, ILogListener theListener) {
-		listeners.get(theNdc).remove(theListener);
-	}
-
-	public interface ILogListener {
-
-		void handle(LoggingEvent theEvent, String theFormattedLine);
-
-	}
-
+  public interface ILogListener
+  {
+    void handle(LoggingEvent theEvent, String theFormattedLine);
+  }
 }

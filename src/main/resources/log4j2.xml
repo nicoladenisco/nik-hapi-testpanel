@@ -26,15 +26,17 @@
     this file under either the MPL or the GPL.
 
 -->
-<Configuration>
-    <Appenders>
-        <Console name="STDOUT">
-            <PatternLayout pattern="%d{ABSOLUTE} %5p [%t] %c{1}:%L - %m%n"/>
-        </Console>
-    </Appenders>
-    <Loggers>
-        <Root level="INFO">
-            <AppenderRef ref="STDOUT"/>
-        </Root>
-    </Loggers>
+<Configuration xmlns:xi="http://www.w3.org/2001/XInclude" packages="ca.uhn.hl7v2.testpanel.util" status="WARN">
+  <Appenders>
+    <Console name="STDOUT">
+      <PatternLayout pattern="%d{ABSOLUTE} %5p [%t] %c{1}:%L - %m%n"/>
+    </Console>
+    <SwingLogAppender name="SwingLogAppender" />
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="STDOUT"/>
+      <AppenderRef ref="SwingLogAppender" />
+    </Root>
+  </Loggers>
 </Configuration>

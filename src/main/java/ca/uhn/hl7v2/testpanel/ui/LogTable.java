@@ -25,128 +25,156 @@
  */
 package ca.uhn.hl7v2.testpanel.ui;
 
+import ca.uhn.hl7v2.testpanel.util.SwingLogAppender;
+import ca.uhn.hl7v2.testpanel.util.SwingLogAppender.ILogListener;
 import java.awt.Color;
 import java.awt.Component;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggingEvent;
 
-import ca.uhn.hl7v2.testpanel.util.SwingLogAppender;
-import ca.uhn.hl7v2.testpanel.util.SwingLogAppender.ILogListener;
+public class LogTable extends JScrollPane
+{
+  private static final Color CLR_NORMAL = Color.black;
+  private static final Color CLR_ERROR = new Color(1.0f, 0.0f, 0.0f);
+  private static final Color CLR_WARN = new Color(0.5f, 0.5f, 0.0f);
 
-public class LogTable extends JScrollPane {
-	private static final Color CLR_NORMAL = Color.black;
-	private static final Color CLR_ERROR = new Color(1.0f, 0.0f, 0.0f);
-	private static final Color CLR_WARN = new Color(0.5f, 0.5f, 0.0f);
+  private JTable myLogTable;
+  private Model myModel;
 
-	private JTable myLogTable;
-	private Model myModel;
+  public LogTable()
+  {
+    this("");
+  }
 
-	public LogTable() {
-		this("");
-	}
-	
-	public LogTable(String theNdc) {
-		
-		myLogTable = new JTable();
-        myLogTable.setFillsViewportHeight(true);
-        myLogTable.setShowHorizontalLines(false);
-        myLogTable.setShowVerticalLines(false);
-        
-        setViewportView(myLogTable);
-		
-        myModel = new Model();
-        myLogTable.setModel(myModel);
-        myLogTable.setDefaultRenderer(Object.class, new Renderer());
-        
-        myLogTable.getColumnModel().getColumn(0).setMaxWidth(60);
-        myLogTable.getColumnModel().getColumn(0).setPreferredWidth(60);
-        myLogTable.getColumnModel().getColumn(1).setMaxWidth(120);
-        myLogTable.getColumnModel().getColumn(1).setPreferredWidth(120);
-        
-        SwingLogAppender.addListener(theNdc, myModel);
-	}
+  public LogTable(String theNdc)
+  {
+    myLogTable = new JTable();
+    myLogTable.setFillsViewportHeight(true);
+    myLogTable.setShowHorizontalLines(false);
+    myLogTable.setShowVerticalLines(false);
 
-	private class Renderer extends DefaultTableCellRenderer
-	{
+    setViewportView(myLogTable);
 
+    myModel = new Model();
+    myLogTable.setModel(myModel);
+    myLogTable.setDefaultRenderer(Object.class, new Renderer());
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public Component getTableCellRendererComponent(JTable theTable, Object theValue, boolean theIsSelected, boolean theHasFocus, int theRow, int theColumn) {
-			Component retVal = super.getTableCellRendererComponent(theTable, theValue, theIsSelected, theHasFocus, theRow, theColumn);
-			
-			Level level = (Level) myModel.getValueAt(theRow, 0);
-			if (level == Level.WARN) {
-				retVal.setForeground(CLR_WARN);
-			} else if (level == Level.ERROR || level == Level.FATAL) {
-				retVal.setForeground(CLR_ERROR);
-			} else {
-				retVal.setForeground(CLR_NORMAL);
-			}
-			
-			if (theColumn == 0) {
-				String levelName;
-				if (level == Level.INFO) {
-					levelName = "INFO";
-				} else if (level == Level.WARN) {
-					levelName = "WARN";
-				} else if (level == Level.ERROR) {
-					levelName = "ERROR";
-				} else if (level == Level.FATAL) {
-					levelName = "FATAL";
-				} else if (level == Level.DEBUG) {
-					levelName = "DEBUG";
-				} else if (level == Level.ALL) {
-					levelName = "ALL";
-				} else if (level == Level.TRACE) {
-					levelName = "TRACE";
-				} else {
-					levelName = "UNKNOWN";
-				}
-				setText(levelName);
-			}
-			
-			return retVal;
-		}
-		
-	}
-	
-	private class Model extends DefaultTableModel implements ILogListener
-	{
-		private SimpleDateFormat ourDateFmt = new SimpleDateFormat("HH:mm:ss.SSS");
-		
-		public Model() {
-			addColumn("Level");
-			addColumn("Time");
-			addColumn("Log");
-		}
+    myLogTable.getColumnModel().getColumn(0).setWidth(100);
+    myLogTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+    myLogTable.getColumnModel().getColumn(1).setWidth(120);
+    myLogTable.getColumnModel().getColumn(1).setPreferredWidth(120);
+    myLogTable.getColumnModel().getColumn(2).setWidth(300);
+    myLogTable.getColumnModel().getColumn(2).setPreferredWidth(300);
+    myLogTable.getTableHeader().setResizingAllowed(true);
 
-		public void handle(LoggingEvent theEvent, String theFormattedLine) {
-			
-			String date = ourDateFmt.format(new Date(theEvent.getTimeStamp()));
-			Level level = theEvent.getLevel();
-			super.addRow(new Object[] {level, date, theEvent.getMessage()});
-			
-			SwingUtilities.invokeLater(new Runnable() {
+    SwingLogAppender.addListener(theNdc, myModel);
+  }
 
-				public void run() {
-					JScrollBar vsb = LogTable.this.getVerticalScrollBar();
-					vsb.setValue(vsb.getMaximum());
-				}});
-		}
-		
-	}
-	
+  private class Renderer extends DefaultTableCellRenderer
+  {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Component getTableCellRendererComponent(JTable theTable,
+       Object theValue, boolean theIsSelected, boolean theHasFocus, int theRow, int theColumn)
+    {
+      Component retVal = super.getTableCellRendererComponent(
+         theTable, theValue, theIsSelected, theHasFocus, theRow, theColumn);
+
+      Level level = (Level) myModel.getValueAt(theRow, 0);
+      if(level == Level.WARN)
+      {
+        retVal.setForeground(CLR_WARN);
+      }
+      else if(level == Level.ERROR || level == Level.FATAL)
+      {
+        retVal.setForeground(CLR_ERROR);
+      }
+      else
+      {
+        retVal.setForeground(CLR_NORMAL);
+      }
+
+      if(theColumn == 0)
+      {
+        String levelName;
+        if(level == Level.INFO)
+        {
+          levelName = "INFO";
+        }
+        else if(level == Level.WARN)
+        {
+          levelName = "WARN";
+        }
+        else if(level == Level.ERROR)
+        {
+          levelName = "ERROR";
+        }
+        else if(level == Level.FATAL)
+        {
+          levelName = "FATAL";
+        }
+        else if(level == Level.DEBUG)
+        {
+          levelName = "DEBUG";
+        }
+        else if(level == Level.ALL)
+        {
+          levelName = "ALL";
+        }
+        else if(level == Level.TRACE)
+        {
+          levelName = "TRACE";
+        }
+        else
+        {
+          levelName = "UNKNOWN";
+        }
+        setText(levelName);
+      }
+
+      return retVal;
+    }
+  }
+
+  private class Model extends DefaultTableModel implements ILogListener
+  {
+    private SimpleDateFormat ourDateFmt = new SimpleDateFormat("HH:mm:ss.SSS");
+
+    public Model()
+    {
+      addColumn("Level");
+      addColumn("Time");
+      addColumn("Log");
+    }
+
+    public void handle(LoggingEvent theEvent, String theFormattedLine)
+    {
+      String date = ourDateFmt.format(new Date(theEvent.getTimeStamp()));
+      Level level = theEvent.getLevel();
+      super.addRow(new Object[]
+      {
+        level, date, theEvent.getMessage()
+      });
+
+      SwingUtilities.invokeLater(new Runnable()
+      {
+
+        public void run()
+        {
+          JScrollBar vsb = LogTable.this.getVerticalScrollBar();
+          vsb.setValue(vsb.getMaximum());
+        }
+      });
+    }
+  }
 }
