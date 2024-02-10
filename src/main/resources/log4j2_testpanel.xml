@@ -6,23 +6,19 @@ Contributor(s): ______________________________________. Alternatively, the conte
 of the GPL are applicable instead of those above. If you wish to allow use of your version of this file only under the terms of the GPL and not to allow others to use your version of this file under the
 MPL, indicate your decision by deleting the provisions above and replace them with the notice and other provisions required by the GPL License. If you do not delete the provisions above, a recipient may
 use your version of this file under either the MPL or the GPL. -->
-<Configuration xmlns:xi="http://www.w3.org/2001/XInclude" packages="ca.uhn.hl7v2.testpanel.util" status="WARN">
+<Configuration xmlns:xi="http://www.w3.org/2001/XInclude" packages="ca.uhn.hl7v2.testpanel.util" status="trace">
   <Appenders>
-    <Console name="STDOUT">
-      <PatternLayout pattern="%d{ABSOLUTE} %5p [%t] %c{1}:%L - %m%n"/>
+    <Console name="app" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d [%t] %-5p | %c{1} - %m%n"/>
     </Console>
-    <File name="File" fileName="${testpanel.log.dir}/testpanel.log">
-      <PatternLayout>
-        <pattern>%d{ABSOLUTE} %5p [%t] %c{1}:%L - %m%n</pattern>
-      </PatternLayout>
+    <File name="mainlog" fileName="${sys:testpanel.log.dir}/testpanel.log" append="false">
+      <PatternLayout pattern="%d [%t] %-5p | %c{1} - %m%n"/>
     </File>
-    <SwingLogAppender name="SwingLogAppender"/>
   </Appenders>
   <Loggers>
-    <Root level="INFO">
-      <AppenderRef ref="STDOUT"/>
-      <AppenderRef ref="File"/>
-      <AppenderRef ref="SwingLogAppender"/>
+    <Root level="DEBUG">
+      <AppenderRef ref="app" level="DEBUG"/>
+      <AppenderRef ref="mainlog" level="DEBUG"/>
     </Root>
   </Loggers>
 </Configuration>

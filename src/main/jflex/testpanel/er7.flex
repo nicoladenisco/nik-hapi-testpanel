@@ -4,7 +4,6 @@ import jsyntaxpane.lexers.*;
 import jsyntaxpane.Token;
 import jsyntaxpane.TokenType;
 
-@SuppressWarnings("unused")
 
 %%
 
@@ -20,7 +19,7 @@ import jsyntaxpane.TokenType;
 %{
 
 	private boolean myReturnNewlines;
-	
+
     /**
      * Default constructor is needed as we will always call the yyreset
      */
@@ -38,9 +37,9 @@ import jsyntaxpane.TokenType;
 
 	@Override
     public int yychar() {
-        return yychar;
+        return (int) yychar;
     }
-    
+
 
 %}
 
@@ -99,7 +98,7 @@ AnythingElseAtEnd = .+(\r|\n|\r\n)
   {RepDelim}                     |
   {EscapeDelim}                  |
   {ComponentDelim}               { yybegin(AT_START_OF_VALUE); return token(TokenType.TYPE); }
-  
+
   {Comment}                      { return token(TokenType.COMMENT); }
 
 }
@@ -111,38 +110,38 @@ AnythingElseAtEnd = .+(\r|\n|\r\n)
 }
 
 <AT_START_OF_VALUE> {
-  
+
   {FieldDelim}                   |
   {SubComponentDelim}            |
   {RepDelim}                     |
   {EscapeDelim}                  |
   {ComponentDelim}               { yybegin(AT_START_OF_VALUE); return token(TokenType.TYPE); }
-  
+
   {LineTerminator}				 { yybegin(YYINITIAL); return token(TokenType.DEFAULT); }
 
   {Number}				         { yypushback(1); yybegin(AT_DELIM); return token(TokenType.TYPE2); }
   {NumberAtEnd}				     { yybegin(YYINITIAL); return token(TokenType.TYPE2); }
-  
+
   {EscapeSequence}			     { return token(TokenType.TYPE3); }
 
   {OneChar}						 { yybegin(WITHIN_VALUE); return token(TokenType.DEFAULT); }
-  
+
 }
 
 <WITHIN_VALUE> {
-  
+
   {FieldDelim}                   |
   {SubComponentDelim}            |
   {RepDelim}                     |
   {EscapeDelim}                  |
   {ComponentDelim}               { yybegin(AT_START_OF_VALUE); return token(TokenType.TYPE); }
-  
+
   {LineTerminator}				 { yybegin(YYINITIAL); return token(TokenType.DEFAULT); }
 
   {EscapeSequence}			     { return token(TokenType.TYPE3); }
-  
+
   {OneChar}						 { yybegin(WITHIN_VALUE); return token(TokenType.DEFAULT); }
-  
+
 }
 
 

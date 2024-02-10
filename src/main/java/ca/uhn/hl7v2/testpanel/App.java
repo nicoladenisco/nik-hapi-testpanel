@@ -32,12 +32,12 @@ import java.awt.EventQueue;
 import java.lang.reflect.Method;
 import java.net.URL;
 import javax.swing.UIManager;
-import org.apache.log4j.xml.DOMConfigurator;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.commonlib5.utils.OsIdent;
 
 public class App
 {
-
-//	private static final Logger ourLog = LoggerFactory.getLogger(App.class);
+  public static final String APP_NAME = "HapiTestPanel";
   private static Controller myController;
 
   /**
@@ -45,86 +45,73 @@ public class App
    */
   public static void main(String[] args)
   {
+    try
+    {
+      doMain(args);
+    }
+    catch(Exception e)
+    {
+      System.err.println("FATAL ERROR occurred in application startup.");
+      e.printStackTrace();
+    }
+  }
+
+  public static void doMain(String[] args)
+     throws Exception
+  {
+    if(!OsIdent.isJava8())
+    {
+      System.out.println(
+         "This application use only Java 1.8\n"
+         + "Change jour JVM to run application."
+      );
+      return;
+    }
+
+    //System.setProperty("log4j2.debug", "true");
+    System.setProperty("hapi.home", Prefs.getTestpanelHomeDirectory().getAbsolutePath());
+    System.setProperty("testpanel.log.dir", Prefs.getTestpanelLogDirectory().getAbsolutePath());
+    URL logres = App.class.getClassLoader().getResource("log4j2_testpanel.xml");
+
+    Configurator.initialize("hapi", App.class.getClassLoader(), logres.toURI());
+
     System.setProperty("apple.laf.useScreenMenuBar", "true");
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "HAPI TestPanel");
     System.setProperty(MessageIDGenerator.NEVER_FAIL_PROPERTY, Boolean.TRUE.toString());
 
-    try
-    {
-      // Set System L&F
-      UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-    }
-    catch(Exception e)
-    {
-      e.printStackTrace();
-    }
-
-    System.setProperty("tespanel.log.dir", Prefs.getTestpanelHomeDirectory().getAbsolutePath());
-    URL logres = App.class.getClassLoader().getResource("log4j2_testpanel.xml");
-    DOMConfigurator.configure(logres);
+    // Set System L&F
+    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
     myController = new Controller();
 
-    // only do this setup if we know this is a Mac
-    String osName = System.getProperty("os.name");
-    if(osName.startsWith("Mac OS X"))
+    switch(OsIdent.checkOStype())
     {
-      try
-      {
-        Class<?> clazz = Class.forName("ca.uhn.hl7v2.testpanel.OSXInitializer");
-        Method runMethod = clazz.getMethod("run", Controller.class);
-        runMethod.invoke(clazz.newInstance(), myController);
-      }
-      catch(Exception e)
-      {
-        e.printStackTrace();
-      }
-    }
-
-    // only do this setup if we know this is Windows
-    if(osName.toLowerCase().contains("win"))
-    {
-      try
-      {
-        Class<?> clazz = Class.forName("ca.uhn.hl7v2.testpanel.WindowsInitializer");
-        Method runMethod = clazz.getMethod("run", Controller.class);
-        runMethod.invoke(clazz.newInstance(), myController);
-      }
-      catch(Exception e)
-      {
-        e.printStackTrace();
-      }
-    }
-
-    // only do this setup if we know this is a Mac
-    if(osName.startsWith("Linux"))
-    {
-      try
+      case OsIdent.OS_LINUX:
+      case OsIdent.OS_FREEBSD:
       {
         Class<?> clazz = Class.forName("ca.uhn.hl7v2.testpanel.LinuxInitializer");
         Method runMethod = clazz.getMethod("run", Controller.class);
         runMethod.invoke(clazz.newInstance(), myController);
+        break;
       }
-      catch(Exception e)
+
+      case OsIdent.OS_WINDOWS:
       {
-        e.printStackTrace();
+        Class<?> clazz = Class.forName("ca.uhn.hl7v2.testpanel.WindowsInitializer");
+        Method runMethod = clazz.getMethod("run", Controller.class);
+        runMethod.invoke(clazz.newInstance(), myController);
+        break;
+      }
+
+      case OsIdent.OS_MACOSX:
+      {
+        Class<?> clazz = Class.forName("ca.uhn.hl7v2.testpanel.OSXInitializer");
+        Method runMethod = clazz.getMethod("run", Controller.class);
+        runMethod.invoke(clazz.newInstance(), myController);
+        break;
       }
     }
 
-    EventQueue.invokeLater(new Runnable()
-    {
-      public void run()
-      {
-        try
-        {
-          myController.start();
-//					window.getFrame().setVisible(true);
-        }
-        catch(Exception e)
-        {
-          e.printStackTrace();
-        }
-      }
-    });
+    EventQueue.invokeLater(() -> myController.start());
   }
 }

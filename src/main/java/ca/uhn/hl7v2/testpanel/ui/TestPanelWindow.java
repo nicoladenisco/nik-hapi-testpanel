@@ -57,6 +57,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListCellRenderer;
@@ -80,6 +82,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.commonlib5.gui.ErrorDialog;
+import org.commonlib5.gui.OpenFileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +92,6 @@ import org.slf4j.LoggerFactory;
  */
 public class TestPanelWindow implements IDestroyable
 {
-
   private Hl7V2FileDiffController myHl7V2FileDiff;
   private Controller myController;
   private JFrame myframe;
@@ -117,8 +120,6 @@ public class TestPanelWindow implements IDestroyable
     myController = theController;
     myMessageDescriptionListener = new MyMessageDescriptionListener();
 
-    // byNIK: spostato nella configurazione log4j2.xml
-    //new SwingLogAppender();
     initialize();
     initializeLocal();
     initWindowPosition();
@@ -433,16 +434,8 @@ public class TestPanelWindow implements IDestroyable
     mnNewMenu.setMnemonic('v');
     menuBar.add(mnNewMenu);
 
-    myShowLogConsoleMenuItem = new JMenuItem("Show Log Console");
-    myShowLogConsoleMenuItem.addActionListener(new ActionListener()
-    {
-      public void actionPerformed(ActionEvent e)
-      {
-        Prefs.getInstance().setShowLogConsole(!Prefs.getInstance().getShowLogConsole());
-        updateLogScrollPaneVisibility();
-        myframe.validate();
-      }
-    });
+    myShowLogConsoleMenuItem = new JMenuItem("Show Log");
+    myShowLogConsoleMenuItem.addActionListener((ActionEvent e) -> openLogInEditor());
     mnNewMenu.add(myShowLogConsoleMenuItem);
 
     mymenu_1 = new JMenu("Test");
@@ -464,7 +457,6 @@ public class TestPanelWindow implements IDestroyable
     mnHl7V2FileDiff = new JMenuItem("HL7 v2 File Diff...");
     mnHl7V2FileDiff.addActionListener(new ActionListener()
     {
-
       public void actionPerformed(ActionEvent e)
       {
         if(myHl7V2FileDiff == null)
@@ -934,31 +926,7 @@ public class TestPanelWindow implements IDestroyable
     myWorkspacePanel.setLayout(new BorderLayout(0, 0));
     outerSplitPane.setDividerLocation(200);
 
-    myLogScrollPane = new LogTable();
-    myLogScrollPane.setPreferredSize(new Dimension(454, 120));
-    myLogScrollPane.setMaximumSize(new Dimension(32767, 120));
-    myframe.getContentPane().add(myLogScrollPane, BorderLayout.SOUTH);
-
-    updateLogScrollPaneVisibility();
-
     updateLeftToolbarButtons();
-  }
-
-  private void updateLogScrollPaneVisibility()
-  {
-    if(Prefs.getInstance().getShowLogConsole())
-    {
-      myShowLogConsoleMenuItem.setSelected(true);
-      myLogScrollPane.setVisible(true);
-      myShowLogConsoleMenuItem.setIcon(new ImageIcon(TestPanelWindow.class.getResource("/ca/uhn/hl7v2/testpanel/images/menu_selected.png")));
-    }
-    else
-    {
-      myShowLogConsoleMenuItem.setSelected(false);
-      myLogScrollPane.setVisible(false);
-      myShowLogConsoleMenuItem.setIcon(null);
-    }
-
   }
 
   private void initializeLocal()
@@ -1104,6 +1072,20 @@ public class TestPanelWindow implements IDestroyable
 
   }
 
+  private void openLogInEditor()
+  {
+    try
+    {
+      File file = Prefs.getTestpanelLogFile();
+      OpenFileHelper helper = new OpenFileHelper();
+      helper.open(file);
+    }
+    catch(IOException iOException)
+    {
+      ErrorDialog.showError(myframe, iOException);
+    }
+  }
+
   private class MyInboundConnectionDescriptionListener implements PropertyChangeListener
   {
 
@@ -1196,7 +1178,6 @@ public class TestPanelWindow implements IDestroyable
   private JButton myAddConnectionButton;
   private JList myOutboundConnectionsList;
   private JList myInboundConnectionsList;
-  private JScrollPane myLogScrollPane;
   private BaseMainPanel myMainPanel;
   private JButton myAddMessageButton;
   private JButton myDeleteMessageButton;

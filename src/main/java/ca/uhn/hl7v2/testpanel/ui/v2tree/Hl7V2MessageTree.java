@@ -98,6 +98,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
+import org.netbeans.swing.outline.DefaultOutlineCellRenderer;
 import org.netbeans.swing.outline.DefaultOutlineModel;
 import org.netbeans.swing.outline.Outline;
 import org.netbeans.swing.outline.OutlineModel;
@@ -160,7 +161,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
       }
     });
 
-    setFont(new Font("LUCIDA", Font.PLAIN, 9));
+    setFont(new Font("LUCIDA", Font.PLAIN, 10));
 
     myController = theController;
 
@@ -179,6 +180,7 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
 
     ValueCellEditor valueCellEditor = new ValueCellEditor(getFont());
     setDefaultEditor(String.class, valueCellEditor);
+    setDefaultRenderer(Object.class, new DefaultOutlineCellRenderer());
 
     valueCellEditor.addCellEditorListener(new CellEditorListener()
     {
@@ -981,6 +983,8 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
 
     setDefaultRenderer(NodeValidationFailure.class, new ValidationTreeCellRenderer());
 
+    // byNIK: IMPORTANTE senza questo non disegna le icone apertura/chiusura
+    getColumnModel().getColumn(0).setCellRenderer(new DefaultOutlineCellRenderer());
     // Volumn index is off by one because of the tree
     getColumnModel().getColumn(TreeRowModel.COL_VALUE + 1).setCellRenderer(new ValueCellRenderer(this));
 
@@ -2903,7 +2907,8 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
   private class ValidationTreeCellRenderer extends DefaultTableCellRenderer
   {
     @Override
-    public Component getTableCellRendererComponent(JTable theTable, Object theValue, boolean theIsSelected, boolean theHasFocus, int theRow, int theColumn)
+    public Component getTableCellRendererComponent(JTable theTable, Object theValue,
+       boolean theIsSelected, boolean theHasFocus, int theRow, int theColumn)
     {
       Component tableCellRendererComponent
          = super.getTableCellRendererComponent(theTable, theValue, theIsSelected, theHasFocus, theRow, theColumn);

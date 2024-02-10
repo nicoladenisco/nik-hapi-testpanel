@@ -25,39 +25,37 @@
  */
 package ca.uhn.hl7v2.testpanel;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import ca.uhn.hl7v2.testpanel.controller.Controller;
-
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLong;
 import com.sun.jna.WString;
 import com.sun.jna.ptr.PointerByReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class WindowsInitializer {
+public class WindowsInitializer
+{
+  private static final Logger ourLog = LoggerFactory.getLogger(WindowsInitializer.class);
 
-	private static final Logger ourLog = LoggerFactory.getLogger(WindowsInitializer.class);
-	
-	public static void setCurrentProcessExplicitAppUserModelID(final String appID) {
-		Shell32 s32 = (Shell32) Native.loadLibrary("shell32", Shell32.class);
-		if (s32.SetCurrentProcessExplicitAppUserModelID(new WString(appID)).longValue() != 0) {
-			ourLog.warn("unable to set current process explicit AppUserModelID to: " + appID);
-		}
-	}
+  public static void setCurrentProcessExplicitAppUserModelID(final String appID)
+  {
+    Shell32 s32 = (Shell32) Native.loadLibrary("shell32", Shell32.class);
+    if(s32.SetCurrentProcessExplicitAppUserModelID(new WString(appID)).longValue() != 0)
+    {
+      ourLog.warn("unable to set current process explicit AppUserModelID to: " + appID);
+    }
+  }
 
-	public void run(final Controller theController) {
-		setCurrentProcessExplicitAppUserModelID(App.class.getName());
-	}
-	
-	
-	private interface Shell32 extends Library
-	{
-		NativeLong GetCurrentProcessExplicitAppUserModelID(PointerByReference appID);
+  public void run(final Controller theController)
+  {
+    setCurrentProcessExplicitAppUserModelID(App.class.getName());
+  }
 
-		NativeLong SetCurrentProcessExplicitAppUserModelID(WString appID);
-		
-	}
-	
+  private interface Shell32 extends Library
+  {
+    NativeLong GetCurrentProcessExplicitAppUserModelID(PointerByReference appID);
+
+    NativeLong SetCurrentProcessExplicitAppUserModelID(WString appID);
+  }
 }
