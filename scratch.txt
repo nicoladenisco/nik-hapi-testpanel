@@ -1,17 +1,201 @@
-<Configuration xmlns:xi="http://www.w3.org/2001/XInclude" packages="ca.uhn.hl7v2.testpanel.util" status="WARN">
-  <Appenders>
-    <Console name="STDOUT">
-      <PatternLayout pattern="%d{ABSOLUTE} %5p [%t] %c{1}:%L - %m%n"/>
-    </Console>
-    <File name="File" fileName="${sys:testpanel.log.dir}/testpanel.log">
-      <PatternLayout pattern="%d{ABSOLUTE} %5p [%t] %c{1}:%L - %m%n"/>
-    </File>
-  </Appenders>
-  <Loggers>
-    <Root level="INFO">
-      <AppenderRef ref="File"/>
-      <AppenderRef ref="STDOUT"/>
-    </Root>
-  </Loggers>
-</Configuration>
+MSH|^~\&|CALEIDO|LIS|DIAMANTE|LIS|20230831180134.022+0100||OML^O21^OML_O21|2001||2.6||||||UNICODE
+UAC|DEBUG
+PID||CAL_A067501^^^^CALEIDO|GRRDLF62M19F839B^^^^CF~GRRDLF62M19F839B^^^^CS~^^^^STP|^^^^XMPI|GUERRIERO^ADOLFO||19620819|M|||&via roma^^061032^CE^81040^^^150203^21||^^^^^^^^^^^gmail@gmail.com|^^^^^^^^^^^333111222|||||||||063049
+PV1||I|INFOMED^^^^^^^^Informatica Medica|||SVI^^^^^^^^Sviluppo|||||||||||||20231300007|||0|||20230810|||||||||0||||||||||20230807105036.574+0100||||||20231300007
+PV2|||||61|anni|||||||||||||||||||||||||||||||||||GDPR_ACC^0~GDPR_ESE^0~GDPR_REF^0
+ORC|NW|INFOMED_10009||20231300007|SC||1^^^20230807105055^^R|||||^NESSUNO|||||SVI^Sviluppo||||||||||20230807105036.574+0100
+OBR||INFOMED_10009||22664-7^AZOTEMIA|R|20230807105036.574+0100||||||| ||||||||||||||^^1||||^^ICD-9-CM|||||||||||||||-1^^-1^0
+OBX|||22664-7^AZOTEMIA|||mg/dl
+SPM|1|&&20230511300007^&&20230511300007||01^SIERO||||||||||||||20230807105051.371+0100||Y
+SAC|||^^20230511300007||||20230807105051.371+0100
+FT1||||20230831180134.172+0100||0|0
+BLG||0|0|PRV^Privato
+ORC|NW|INFOMED_10010||20231300007|SC||1^^^20230807105055^^R|||||^NESSUNO|||||SVI^Sviluppo||||||||||20230807105036.574+0100
+OBR||INFOMED_10010||2345-7^GLICEMIA|R|20230807105036.574+0100||||||| ||||||||||||||^^1||||^^ICD-9-CM|||||||||||||||-1^^-1^0
+OBX|||2345-7^GLICEMIA|||mg/dl
+SPM|2|&&20230511300007^&&20230511300007||01^SIERO||||||||||||||20230807105051.371+0100||Y
+SAC|||^^20230511300007||||20230807105051.371+0100
+FT1||||20230831180134.196+0100||0|0
+BLG||0|0|PRV^Privato
+ORC|NW|INFOMED_10011||20231300007|SC||1^^^20230807105055^^R|||||^NESSUNO|||||SVI^Sviluppo||||||||||20230807105036.574+0100
+OBR||INFOMED_10011||1920-8^GOT-AST/TRANSAMINASI|R|20230807105036.574+0100||||||| ||||||||||||||^^1||||^^ICD-9-CM|||||||||||||||-1^^-1^0
+OBX|||1920-8^GOT-AST/TRANSAMINASI|||g/l
+SPM|3|&&20230511300007^&&20230511300007||01^SIERO||||||||||||||20230807105051.371+0100||Y
+SAC|||^^20230511300007||||20230807105051.371+0100
+FT1||||20230831180134.202+0100||0|0
+BLG||0|0|PRV^Privato
+ORC|NW|INFOMED_10012||20231300007|SC||1^^^20230807105055^^R|||||^NESSUNO|||||SVI^Sviluppo||||||||||20230807105036.574+0100
+OBR||INFOMED_10012||1744-2^GPT-ALT/TRANSAMINASI|R|20230807105036.574+0100||||||| ||||||||||||||^^1||||^^ICD-9-CM|||||||||||||||-1^^-1^0
+OBX|||1744-2^GPT-ALT/TRANSAMINASI|||g/l
+SPM|4|&&20230511300007^&&20230511300007||01^SIERO||||||||||||||20230807105051.371+0100||Y
+SAC|||^^20230511300007||||20230807105051.371+0100
+FT1||||20230831180134.208+0100||0|0
+BLG||0|0|PRV^Privato
+ORC|NW|INFOMED_10013||20231300007|SC||1^^^20230807105055^^R|||||^NESSUNO|||||SVI^Sviluppo||||||||||20230807105036.574+0100
+OBR||INFOMED_10013||55429-5^ESAME EMOCROMOCITOMETRICO|R|20230807105036.574+0100||||||| ||||||||||||||^^1||||^^ICD-9-CM|||||||||||||||-1^^-1^0
+OBX|||i2862^Emoglobina (HGB)|||g/dL
+OBX|||i2863^Globuli rossi (RBC)|||milioni/mmc
+OBX|||i2864^Valore globulare|||%
+OBX|||i2866^Ematocrito (HCT)|||%
+OBX|||i2867^Valore glob.medio (MCV)|||fL
+OBX|||i2868^Cont. Hb glob.medio (MCH)|||pg
+OBX|||i2869^Conc.Hb glob.media (MCHC)|||g/dL
+OBX|||i2870^RDW|||fL
+OBX|||i2871^Globuli bianchi (WBC)|||migl/mmc
+OBX|||i2873^Granulociti Neutrofili %|||%
+OBX|||i2874^Granulociti Eosinofili %|||%
+OBX|||i2875^Granulociti Basofili %|||%
+OBX|||i2876^Linfociti %|||%
+OBX|||i2877^Monociti %|||%
+OBX|||i2878^Granulociti Neutrofili #|||migl/mmc
+OBX|||i2879^Granulociti Eosinofili #|||migl/mmc
+OBX|||i2880^Granulociti Basofili #|||migl/mmc
+OBX|||i2881^Linfociti #|||migl/mmc
+OBX|||i2883^Monociti #|||migl/mmc
+OBX|||i2884^Piastrine|||migl/mmc
+OBX|||i2885^MPW|||fL
+OBX|||i2886^Note emocromo :
+OBX|||i2887^Note piastrine :
+SPM|5|&&20230311300007^&&20230311300007||05^SANGUE||||||||||||||20230807105051.596+0100||Y
+SAC|||^^20230311300007||||20230807105051.596+0100
+FT1||||20230831180134.216+0100||0|0
+BLG||0|0|PRV^Privato
 
+
+// L'inserimento del medico non è gestito nel flusso atomico perchè va inseirot su DB_COMUNE e non su DB_DIAMANTE
+// se l'elaborazione del msg non va a buon fine, il medico risulta comunque importato su DB_COMUNE, mentre la richiesta
+// non è importata su Diamante
+importPackage(Packages.java.lang);
+importPackage(Packages.org.commonlib5.utils);
+importPackage(Packages.com.workingdogs.village);
+
+var dbConnComune = globalChannelMap.get('CONNESSIONE_DB_COMUNE')
+var tableMediciName = globalChannelMap.get("COMUNE_DB") + "..Medici_Proponenti";
+logger.debug("tabella medici " + tableMediciName);
+var tds = new TableDataSet(dbConnComune.getConnection(), tableMediciName);
+
+try
+{
+	logger.debug('[LUL CALEIDO - DIAMANTE OML^O21 ATOMICO][ANAGRAFICA MEDICO].. start')
+
+	globalChannelMap.put('CodMedicoAccettazione','0')
+
+	// gestione medico di base PV1.7
+	// importato in tabella con flag_tipo = 'F' e IDTipo = 4
+	if (StringOper.isOkStr($('CodiceMedicoBase')))
+	{
+		var where = "Codice_Mnemonico = '" + $('CodiceMedicoBase') + "'";
+		logger.debug('[LUL CALEIDO - DIAMANTE OML^O21 ATOMICO][ANAGRAFICA MEDICO] where: ' + where);
+
+      	var r = tds.fetchOneRecordOrNew(where, true);
+
+		if(r.toBeSavedWithInsert())
+		{
+			r.setValue("Codice_Numerico", getNextID());
+			r.setValue("Codice_Mnemonico", $('CodiceMedicoBase'));
+		}
+
+		r.setValue("CognomeNome", $('CNMedicoBase'));
+		r.setValue("flagTipo", "F");
+		r.setValue("IDTipo", 4);
+		tds.save();
+
+		globalChannelMap.put('CodMedicoAccettazione', r.getValue("Codice_Numerico").asInt());
+	}
+
+	// gestione medico specialista PV1.8
+	// importato in tabella con flag_tipo = 'S' e IDTipo = 1
+	if (StringOper.isOkStr($('CodiceMedicoSpecialista')))
+	{
+		var where = "Codice_Mnemonico = '" + $('CodiceMedicoSpecialista') + "'";
+		logger.debug('[LUL CALEIDO - DIAMANTE OML^O21 ATOMICO][ANAGRAFICA MEDICO] where: ' + where);
+
+	 	var r = tds.fetchOneRecordOrNew(where, true);
+
+		if(r.toBeSavedWithInsert())
+		{
+			r.setValue("Codice_Numerico", getNextID());
+			r.setValue("Codice_Mnemonico", $('CodiceMedicoSpecialista'));
+		}
+
+		r.setValue("Codice_Mnemonico", $('CodiceMedicoSpecialista'));
+		r.setValue("CognomeNome", $('CNMedicoSpecialista'));
+		r.setValue("flagTipo", "S");
+		r.setValue("IDTipo", 1);
+		tds.save();
+	}
+
+	dbConnComune.commit()
+}
+catch(err)
+{
+	logger.debug('[LUL CALEIDO - DIAMANTE OML^O21 ATOMICO][ANAGRAFICA MEDICO] errore '+err)
+	var warning = globalChannelMap.get('WARNINGESAMI');
+	warning  +=  'Errore gestione medico specialista in Anagrafica medico '+err
+	globalChannelMap.put('WARNINGESAMI', warning);
+	//var nota = 'CODICE MEDICO DI BASE '+$('CodiceMedicoBase')+"\n"+'CODICE MEDICO SPECIALISTA '+$('CodiceMedicoSpecialista')
+	//WriteError2Table(channelMap.get('ID'),'Destination Anagrafica Medico','W',nota,err)
+}
+finally
+{
+	tds.close();
+}
+
+logger.debug('[LUL CALEIDO - DIAMANTE OML^O21 ATOMICO][ANAGRAFICA MEDICO].. END')
+
+		r.setValue( "Cognome",  $('Cognome') );
+		r.setValue( "Nome",  $('Nome') );
+		r.setValue( "DataNascita",  DateUtil.convertDate("yyyyMMdd", "yyyy-MM-dd", $('DataNascita')) );
+		r.setValue( "Sesso",  $('Sesso') );
+		r.setValue( "Indirizzo",  indirizzo );
+		r.setValue( "MedicoFamiglia"+$('CodMedicoAccettazione')+"', ";
+		r.setValue( "Res_Istat",  residenza );
+		r.setValue( "CodiceFiscale",  $('CodiceFiscale') );
+		r.setValue( "ConsensoWEB",  ConsensoWEB );
+		r.setValue( "ConsensoMedico",  $('CMED') );
+		r.setValue( "ConsensoSMS",  $('CSMS') );
+		r.setValue( "ConsensoOrale",  $('CORAL') );
+		r.setValue( "ConsensoArchivio",  $('CARC') );
+		r.setValue( "DataConsenso",  $('DATACONSENSO') );
+		r.setValue( "ConsensoMilleBridge"+$('CMBG')+"', ";
+		r.setValue( "DataConsensiPrivacy",  $('DATACONSENSOPRIVACY') );
+		r.setValue( "PasswordWEB",  PasswordWEB );
+		r.setValue( "TelSMS",  $('TelSMS') );
+		r.setValue( "Mail",  $('Mail') );
+		r.setValue( "NumTelefono", $('TelSMS') );
+		r.setValue( "Replica",  Replica );
+		r.setValue( "TipoDoc",  channelMap.get('TipoDoc'));
+		r.setValue( "NumeroDoc",  channelMap.get('CodiceDocumento'));
+		r.setValue( "ScadenzaDoc",  channelMap.get('DataScadenzaDocumento') );
+		r.setValue( "RilaDaDoc",  channelMap.get('EnteDocumento') );
+		r.setValue( "RilaDataDoc",  channelMap.get('DataRilascioDocumento') );
+
+	channelMap.put('ANAG_ID_DIAMANTE', r.getValue("Codice").asInt());
+
+		sSQL = "INSERT INTO Accettazione_Work"
+		VALUES-------------------------------------------------------------------------
+		sSQL += ") "
+
+
+
+		r.setValue("reparto , idReparto ) );
+		r.setValue(" data_UltimaModifica , getDate(), "
+		r.setValue(" consensoWeb , $('CWEB') );
+		r.setValue(" ConsensoMedico , $('CMED') );
+		r.setValue(" ConsensoMilleBridge , $('CMBG') );
+		r.setValue(" Diagnosi , $('DiagAcc')  );
+		r.setValue(" NOTE_ECONOMICHE ,  channelMap.get('NOTA_ACCETTAZIONE') );
+		r.setValue(" Zona_provenienza , zona );
+		r.setValue(" Urgenza , '0 $('URGENZA')  );
+		r.setValue(" GDPR_AnonimatoAcc ,  globalChannelMap.get('GDPR_ACC') ) );
+		r.setValue(" GDPR_AnonimatoEse ,  globalChannelMap.get('GDPR_ESE') ) );
+		r.setValue(" GDPR_AnonimatoRef ,  globalChannelMap.get('GDPR_REF') ) );
+		r.setValue(" GDPR_ScadenzaAcc ,  globalChannelMap.get('GDPR_DATA') );
+		r.setValue(" FSE_Invio ,  globalChannelMap.get('FSE_Invio') ) );
+		r.setValue(" FSE_Consulto ,  globalChannelMap.get('FSE_Consulto') ) );
+		r.setValue(" FSE_Pregresso ,  globalChannelMap.get('FSE_Pregresso') ) );
+		r.setValue(" Data_FSE_Invio ,  globalChannelMap.get('Data_FSE_Invio')  );
+		r.setValue(" Data_FSE_Consulto ,  globalChannelMap.get('Data_FSE_Consulto')  );
+		r.setValue(" Data_FSE_Pregresso ,  globalChannelMap.get('Data_FSE_Pregresso')  );
+		if (channelMap.get('Cancella_Accettazione') ,, 1)
+			r.setValue(', annullato , 1 '

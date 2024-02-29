@@ -5,7 +5,6 @@ import javax.swing.UIManager;
 
 public class LinuxInitializer
 {
-
   public void run(final Controller theController)
   {
     try

@@ -79,6 +79,9 @@ public class App
     System.setProperty("com.apple.mrj.application.apple.menu.about.name", "HAPI TestPanel");
     System.setProperty(MessageIDGenerator.NEVER_FAIL_PROPERTY, Boolean.TRUE.toString());
 
+    // allunga il timeout a 30 secondi
+    System.setProperty("ca.uhn.hl7v2.app.initiator.timeout", "30000");
+
     // Set System L&F
     UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 

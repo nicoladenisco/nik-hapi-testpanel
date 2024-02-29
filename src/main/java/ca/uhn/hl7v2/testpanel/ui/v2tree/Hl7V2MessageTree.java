@@ -994,7 +994,6 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
 
     SwingUtilities.invokeLater(new Runnable()
     {
-
       public void run()
       {
         int width = getWidth() - 140;
@@ -1024,7 +1023,6 @@ public class Hl7V2MessageTree extends Outline implements IDestroyable
         getColumnModel().getColumn(5).setPreferredWidth(width / 2);
       }
     });
-
   }
 
   void setMessageForUnitTest(Hl7V2MessageCollection theMessageModel)
